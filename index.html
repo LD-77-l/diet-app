@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="icon-192.png">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一周减脂孕期联合食谱</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Phosphor 图标库 -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .animation-fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 自定义过渡效果 */
+        .transition-colors {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 500ms;
+        }
+    </style>
+</head>
+<body id="app-body" class="min-h-screen bg-slate-50 p-4 md:p-8 font-sans transition-colors duration-500">
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- Header区 -->
+        <header class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-gray-100 gap-4">
+            <div>
+                <h1 id="main-title" class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="ph-fill ph-activity text-blue-700" id="title-icon"></i>
+                    一周减脂孕期联合食谱
+                </h1>
+                <p class="text-gray-500 text-sm mt-1">科学规划 营养均衡，兼顾减脂与孕育</p>
+            </div>
+            
+            <!-- 选项卡切换 -->
+            <div class="flex bg-gray-100 p-1 rounded-full w-full md:w-auto">
+                <button onclick="setTab('plan')" id="tab-plan" class="flex-1 md:w-32 flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-all bg-white shadow-sm text-gray-800">
+                    <i class="ph ph-calendar-blank"></i> 食谱视图
+                </button>
+                <button onclick="setTab('shopping')" id="tab-shopping" class="flex-1 md:w-32 flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-all text-gray-500 hover:text-gray-700">
+                    <i class="ph ph-shopping-cart"></i> 采购清单
+                </button>
+            </div>
+        </header>
+
+        <!-- 动态内容区 -->
+        <div id="main-content"></div>
+
+    </div>
+
+    <script>
+        // --- 数据中心 ---
+        const dietData = [
+            {
+                day: '周一',
+                meals: [
+                    { type: '早餐', icon: 'ph-sun', guoguo: { food: '燕麦片50g + 煮蛋白2个 + 无糖豆浆', p: 18, c: 35, f: 5, cal: 257 }, wife: { food: '燕麦片50g + 煮全蛋1个 + 全脂牛奶 + 蓝莓', p: 22, c: 45, f: 14, cal: 394 } },
+                    { type: '午餐', icon: 'ph-fork-knife', guoguo: { food: '杂粮饭(1拳) + 香煎鸡胸肉150g + 清炒菠菜', p: 40, c: 45, f: 8, cal: 412 }, wife: { food: '杂粮饭(1.5拳) + 鸡胸肉150g + 菠菜 + 豆腐(补钙)', p: 48, c: 65, f: 12, cal: 560 } },
+                    { type: '加餐', icon: 'ph-coffee', guoguo: { food: '黑咖啡1杯 (消水肿)', p: 0, c: 1, f: 0, cal: 5 }, wife: { food: '孕妇奶粉/酸奶1杯 + 核桃2个(DHA)', p: 12, c: 18, f: 15, cal: 255 } },
+                    { type: '晚餐', icon: 'ph-moon', guoguo: { food: '🚫无主食 + 清蒸鱼150g + 凉拌黄瓜', p: 30, c: 5, f: 4, cal: 176 }, wife: { food: '杂粮粥1碗 + 清蒸鱼150g + 清炒时蔬', p: 32, c: 35, f: 6, cal: 322 } }
+                ]
+            },
+            {
+                day: '周二',
+                meals: [
+                    { type: '早餐', icon: 'ph-sun', guoguo: { food: '全麦面包1片 + 煎蛋白2个 + 黑咖啡', p: 12, c: 15, f: 3, cal: 135 }, wife: { food: '全麦面包2片 + 煎全蛋1个 + 芝士片 + 鲜橙', p: 20, c: 40, f: 16, cal: 384 } },
+                    { type: '午餐', icon: 'ph-fork-knife', guoguo: { food: '糙米饭(1拳) + 番茄炖瘦牛腩150g + 西蓝花', p: 35, c: 45, f: 12, cal: 428 }, wife: { food: '糙米饭(1.5拳) + 番茄炖牛腩 + 西蓝花 + 猪肝(补铁)', p: 45, c: 60, f: 16, cal: 564 } },
+                    { type: '加餐', icon: 'ph-coffee', guoguo: { food: '圣女果10颗', p: 1, c: 6, f: 0, cal: 28 }, wife: { food: '香蕉1根 + 每日坚果25g', p: 6, c: 30, f: 14, cal: 270 } },
+                    { type: '晚餐', icon: 'ph-moon', guoguo: { food: '🚫无主食 + 蒜蓉虾仁150g + 冬瓜汤', p: 28, c: 6, f: 5, cal: 181 }, wife: { food: '燕麦饭半碗 + 蒜蓉虾仁150g + 冬瓜汤', p: 30, c: 35, f: 6, cal: 314 } }
+                ]
+            },
+            {
+                day: '周三',
+                meals: [
+                    { type: '早餐', icon: 'ph-sun', guoguo: { food: '蒸红薯1个 + 煮蛋白2个 + 清茶', p: 8, c: 30, f: 0, cal: 152 }, wife: { food: '蒸红薯1个 + 煮全蛋1个 + 热牛奶 + 苹果', p: 16, c: 55, f: 10, cal: 374 } },
+                    { type: '午餐', icon: 'ph-fork-knife', guoguo: { food: '藜麦饭(1拳) + 芹菜炒瘦肉丝150g', p: 35, c: 40, f: 10, cal: 390 }, wife: { food: '藜麦饭(1.5拳) + 芹菜炒肉丝 + 海带排骨汤(少量)', p: 42, c: 55, f: 18, cal: 550 } },
+                    { type: '加餐', icon: 'ph-coffee', guoguo: { food: '黄瓜1根', p: 1, c: 4, f: 0, cal: 20 }, wife: { food: '无糖酸奶1杯 + 杏仁10粒', p: 10, c: 12, f: 12, cal: 196 } },
+                    { type: '晚餐', icon: 'ph-moon', guoguo: { food: '🚫无主食 + 煎鸡胸肉150g + 凉拌生菜', p: 35, c: 5, f: 5, cal: 205 }, wife: { food: '玉米半个 + 煎鸡胸肉150g + 炒生菜', p: 38, c: 25, f: 6, cal: 306 } }
+                ]
+            },
+            {
+                day: '周四',
+                meals: [
+                    { type: '早餐', icon: 'ph-sun', guoguo: { food: '燕麦片50g + 煮蛋白2个 + 黑咖啡', p: 15, c: 35, f: 3, cal: 227 }, wife: { food: '燕麦片50g + 煮全蛋1个 + 豆浆 + 猕猴桃', p: 20, c: 50, f: 12, cal: 388 } },
+                    { type: '午餐', icon: 'ph-fork-knife', guoguo: { food: '紫米饭(1拳) + 清蒸鲈鱼150g + 蒜蓉油麦菜', p: 32, c: 45, f: 6, cal: 362 }, wife: { food: '紫米饭(1.5拳) + 清蒸鲈鱼150g + 油麦菜 + 虾皮蒸蛋', p: 45, c: 60, f: 14, cal: 546 } },
+                    { type: '加餐', icon: 'ph-coffee', guoguo: { food: '圣女果10颗', p: 1, c: 6, f: 0, cal: 28 }, wife: { food: '孕妇奶粉1杯 + 苹果半个', p: 10, c: 25, f: 8, cal: 212 } },
+                    { type: '晚餐', icon: 'ph-moon', guoguo: { food: '🚫无主食 + 炒牛肉片150g + 番茄汤', p: 35, c: 8, f: 10, cal: 262 }, wife: { food: '杂粮粥1碗 + 炒牛肉片150g + 番茄汤', p: 38, c: 38, f: 12, cal: 412 } }
+                ]
+            },
+            {
+                day: '周五',
+                meals: [
+                    { type: '早餐', icon: 'ph-sun', guoguo: { food: '全麦面包1片 + 煎蛋白2个 + 无糖豆浆', p: 18, c: 18, f: 4, cal: 180 }, wife: { food: '全麦面包2片 + 煎全蛋1个 + 牛奶 + 草莓', p: 22, c: 42, f: 14, cal: 382 } },
+                    { type: '午餐', icon: 'ph-fork-knife', guoguo: { food: '糙米饭(1拳) + 白灼虾150g + 芦笋', p: 35, c: 45, f: 4, cal: 356 }, wife: { food: '糙米饭(1.5拳) + 白灼虾150g + 芦笋 + 香菇炒肉', p: 48, c: 60, f: 16, cal: 576 } },
+                    { type: '加餐', icon: 'ph-coffee', guoguo: { food: '黑咖啡1杯', p: 0, c: 1, f: 0, cal: 4 }, wife: { food: '香蕉1根 + 核桃2个', p: 4, c: 30, f: 12, cal: 244 } },
+                    { type: '晚餐', icon: 'ph-moon', guoguo: { food: '🚫无主食 + 烤鸡胸肉150g + 拍黄瓜', p: 35, c: 5, f: 4, cal: 196 }, wife: { food: '燕麦饭半碗 + 烤鸡胸肉150g + 拍黄瓜', p: 38, c: 35, f: 5, cal: 337 } }
+                ]
+            },
+            {
+                day: '周六',
+                meals: [
+                    { type: '早餐', icon: 'ph-sun', guoguo: { food: '煮玉米半个 + 煮蛋白2个 + 清茶', p: 10, c: 20, f: 1, cal: 129 }, wife: { food: '煮玉米1个 + 煮全蛋1个 + 豆浆 + 鲜橙', p: 18, c: 45, f: 9, cal: 333 } },
+                    { type: '午餐', icon: 'ph-fork-knife', guoguo: { food: '蒸红薯(1个) + 黑椒牛柳150g + 西蓝花', p: 35, c: 40, f: 12, cal: 408 }, wife: { food: '蒸红薯(1个) + 黑椒牛柳 + 西蓝花 + 猪血汤(补铁)', p: 45, c: 45, f: 15, cal: 495 } },
+                    { type: '加餐', icon: 'ph-coffee', guoguo: { food: '苹果半个', p: 0, c: 12, f: 0, cal: 48 }, wife: { food: '酸奶1杯 + 每日坚果25g', p: 10, c: 18, f: 15, cal: 287 } },
+                    { type: '晚餐', icon: 'ph-moon', guoguo: { food: '🚫无主食 + 清蒸鱼150g + 菠菜汤', p: 30, c: 5, f: 4, cal: 176 }, wife: { food: '杂粮粥1碗 + 清蒸鱼150g + 菠菜汤', p: 33, c: 35, f: 5, cal: 317 } }
+                ]
+            },
+            {
+                day: '周日',
+                meals: [
+                    { type: '早餐', icon: 'ph-sun', guoguo: { food: '燕麦片50g + 煎蛋白2个 + 黑咖啡', p: 15, c: 35, f: 4, cal: 236 }, wife: { food: '燕麦片50g + 煎全蛋1个 + 牛奶 + 蓝莓', p: 22, c: 45, f: 15, cal: 403 } },
+                    { type: '午餐', icon: 'ph-fork-knife', guoguo: { food: '藜麦饭(1拳) + 鸡腿肉(去皮)150g + 番茄', p: 32, c: 45, f: 8, cal: 380 }, wife: { food: '藜麦饭(1.5拳) + 鸡腿肉(带皮)150g + 番茄 + 豆腐', p: 42, c: 60, f: 18, cal: 570 } },
+                    { type: '加餐', icon: 'ph-coffee', guoguo: { food: '黄瓜1根', p: 1, c: 4, f: 0, cal: 20 }, wife: { food: '孕妇奶粉1杯 + 猕猴桃', p: 9, c: 22, f: 8, cal: 196 } },
+                    { type: '晚餐', icon: 'ph-moon', guoguo: { food: '🚫无主食 + 虾仁滑蛋(多蛋白) + 冬瓜', p: 32, c: 5, f: 8, cal: 220 }, wife: { food: '紫米饭半碗 + 虾仁滑蛋 + 冬瓜', p: 35, c: 35, f: 12, cal: 388 } }
+                ]
+            }
+        ];
+
+        const shoppingList = [
+            { category: '🥬 蔬菜水果区 (生鲜)', icon: 'ph-carrot', color: 'text-emerald-600 bg-emerald-100', items: ['菠菜 (多备)', '西蓝花', '黄瓜 (常备)', '冬瓜', '番茄/圣女果', '生菜/油麦菜', '芹菜', '芦笋', '蓝莓/草莓 (抗氧化)', '鲜橙/猕猴桃 (补维C)', '香蕉/苹果'] },
+            { category: '🥩 肉禽海鲜区 (优良蛋白)', icon: 'ph-cow', color: 'text-rose-600 bg-rose-100', items: ['鸡胸肉 (Guoguo主力)', '鸡腿肉 (去皮/带皮)', '瘦牛腩/牛柳 (补铁)', '新鲜海虾/虾仁', '鲈鱼/海鱼 (清蒸用)', '猪瘦肉', '猪肝/猪血 (夫人补铁专用)'] },
+            { category: '🥛 蛋奶及豆制品 (钙与脂肪)', icon: 'ph-drop', color: 'text-blue-600 bg-blue-100', items: ['新鲜鸡蛋 (大量，Guoguo多吃蛋白)', '全脂牛奶 (夫人)', '孕妇奶粉/无糖酸奶', '无糖豆浆', '芝士片', '老豆腐/嫩豆腐'] },
+            { category: '🌾 粮油副食区 (优质碳水)', icon: 'ph-apple-pod', color: 'text-amber-600 bg-amber-100', items: ['原味燕麦片', '糙米/藜麦/紫米 (杂粮类)', '全麦面包', '红薯/紫薯', '甜玉米', '每日坚果/核桃 (夫人DHA)', '黑咖啡 (Guoguo消水肿)', '海带 (煮汤用)'] }
+        ];
+
+        // --- 状态管理 ---
+        let activeTab = 'plan'; // 'plan' or 'shopping'
+        let activePerson = 'guoguo'; // 'guoguo' or 'wife'
+        let activeDayIdx = 0;
+
+        // --- 渲染函数 ---
+        function render() {
+            // 更新选项卡样式
+            document.getElementById('tab-plan').className = `flex-1 md:w-32 flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-all ${activeTab === 'plan' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'}`;
+            document.getElementById('tab-shopping').className = `flex-1 md:w-32 flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-all ${activeTab === 'shopping' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'}`;
+
+            const contentDiv = document.getElementById('main-content');
+            
+            // 主题计算
+            const theme = activePerson === 'guoguo' 
+                ? { bg: 'bg-slate-50', primary: 'bg-blue-600', text: 'text-blue-700', lightBg: 'bg-blue-50', border: 'border-blue-200', icon: 'text-blue-700' }
+                : { bg: 'bg-orange-50', primary: 'bg-rose-500', text: 'text-rose-700', lightBg: 'bg-rose-50', border: 'border-rose-200', icon: 'text-rose-500' };
+
+            document.getElementById('app-body').className = `min-h-screen ${theme.bg} p-4 md:p-8 font-sans transition-colors duration-500`;
+            document.getElementById('title-icon').className = `ph-fill ph-activity ${theme.icon}`;
+
+            if (activeTab === 'plan') {
+                const dayData = dietData[activeDayIdx];
+                
+                // 计算汇总
+                let cal=0, p=0, c=0, f=0;
+                dayData.meals.forEach(meal => {
+                    const data = meal[activePerson];
+                    cal += data.cal; p += data.p; c += data.c; f += data.f;
+                });
+
+                // 生成天数按钮
+                let daysHtml = dietData.map((data, idx) => `
+                    <button onclick="setDay(${idx})" class="min-w-[4rem] flex-1 py-3 px-2 rounded-xl text-sm font-bold transition-all ${
+                        activeDayIdx === idx ? `${theme.primary} text-white shadow-sm` : 'text-gray-500 hover:bg-gray-100'
+                    }">${data.day}</button>
+                `).join('');
+
+                // 生成餐食列表
+                let mealsHtml = dayData.meals.map(meal => {
+                    const mData = meal[activePerson];
+                    const maxMacro = Math.max(mData.p, mData.c, mData.f) || 1;
+                    const pWidth = (mData.p / maxMacro) * 100 + '%';
+                    const cWidth = (mData.c / maxMacro) * 100 + '%';
+                    const fWidth = (mData.f / maxMacro) * 100 + '%';
+
+                    return `
+                    <div class="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div class="flex flex-col items-center justify-center w-16 h-16 rounded-2xl ${theme.lightBg} shrink-0">
+                            <i class="ph ${meal.icon} text-2xl ${theme.text}"></i>
+                            <span class="text-xs font-bold mt-1 ${theme.text}">${meal.type}</span>
+                        </div>
+                        <div class="flex-1 w-full">
+                            <div class="text-gray-800 font-medium text-lg mb-2">${mData.food}</div>
+                            <div class="grid grid-cols-3 gap-4 mt-4 w-full md:max-w-md">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-gray-500">蛋白质</span><span class="font-bold text-red-600">${mData.p}g</span>
+                                    </div>
+                                    <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-red-400 rounded-full transition-all duration-1000" style="width: ${pWidth}"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-gray-500">碳水</span><span class="font-bold text-blue-600">${mData.c}g</span>
+                                    </div>
+                                    <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-400 rounded-full transition-all duration-1000" style="width: ${cWidth}"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-gray-500">脂肪</span><span class="font-bold text-amber-600">${mData.f}g</span>
+                                    </div>
+                                    <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-amber-400 rounded-full transition-all duration-1000" style="width: ${fWidth}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 rounded-xl border border-gray-100 self-end md:self-center shrink-0 w-full md:w-auto text-center">
+                            <div class="text-xs text-gray-500 mb-1">估算热量</div>
+                            <div class="text-xl font-black text-gray-800">${mData.cal} <span class="text-sm font-normal text-gray-500">kcal</span></div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                contentDiv.innerHTML = `
+                    <div class="space-y-6 animation-fade-in">
+                        <!-- 角色切换区 -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="setPerson('guoguo')" class="text-left relative overflow-hidden p-6 rounded-3xl border-2 transition-all ${activePerson === 'guoguo' ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-transparent bg-white shadow-sm hover:bg-gray-50'}">
+                                <div class="flex flex-col items-center gap-2">
+                                    <div class="p-3 rounded-full ${activePerson === 'guoguo' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400'}">
+                                        <i class="ph ph-user text-2xl"></i>
+                                    </div>
+                                    <div class="font-bold text-lg text-center ${activePerson === 'guoguo' ? 'text-blue-800' : 'text-gray-500'}">🧍‍♂️ Guoguo专属</div>
+                                    <div class="text-xs text-center text-gray-500">大基数减脂 (高蛋白低碳)</div>
+                                </div>
+                            </button>
+                            <button onclick="setPerson('wife')" class="text-left relative overflow-hidden p-6 rounded-3xl border-2 transition-all ${activePerson === 'wife' ? 'border-rose-400 bg-rose-50 shadow-md' : 'border-transparent bg-white shadow-sm hover:bg-gray-50'}">
+                                <div class="flex flex-col items-center gap-2">
+                                    <div class="p-3 rounded-full ${activePerson === 'wife' ? 'bg-rose-400 text-white' : 'bg-gray-100 text-gray-400'}">
+                                        <i class="ph ph-baby text-2xl"></i>
+                                    </div>
+                                    <div class="font-bold text-lg text-center ${activePerson === 'wife' ? 'text-rose-800' : 'text-gray-500'}">🤰 夫人专属</div>
+                                    <div class="text-xs text-center text-gray-500">孕中营养平衡 (多维补充)</div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- 星期选择器 -->
+                        <div class="flex justify-between bg-white p-2 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto gap-2">
+                            ${daysHtml}
+                        </div>
+
+                        <!-- 当日营养总览 -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                            <h3 class="text-gray-800 font-bold mb-4 flex items-center gap-2">
+                                <i class="ph-fill ph-activity ${theme.text}"></i>
+                                ${dayData.day} 营养估算总览
+                            </h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="p-4 rounded-2xl ${theme.lightBg} border ${theme.border} flex flex-col justify-center items-center">
+                                    <span class="text-xs text-gray-500 mb-1">总热量 (大卡)</span>
+                                    <span class="text-2xl font-black ${theme.text}">${cal}</span>
+                                </div>
+                                <div class="p-4 rounded-2xl bg-red-50 border border-red-100 flex flex-col justify-center items-center">
+                                    <span class="text-xs text-gray-500 mb-1">蛋白质 (g)</span>
+                                    <span class="text-2xl font-black text-red-600">${p}</span>
+                                </div>
+                                <div class="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex flex-col justify-center items-center">
+                                    <span class="text-xs text-gray-500 mb-1">碳水化合物 (g)</span>
+                                    <span class="text-2xl font-black text-blue-600">${c}</span>
+                                </div>
+                                <div class="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex flex-col justify-center items-center">
+                                    <span class="text-xs text-gray-500 mb-1">脂肪 (g)</span>
+                                    <span class="text-2xl font-black text-amber-600">${f}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 具体餐单 -->
+                        <div class="space-y-4">
+                            ${mealsHtml}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 采购清单视图
+                let listHtml = shoppingList.map(cat => `
+                    <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
+                            <div class="p-2 rounded-lg ${cat.color} flex items-center justify-center">
+                                <i class="ph ${cat.icon} text-xl"></i>
+                            </div>
+                            ${cat.category}
+                        </h3>
+                        <ul class="space-y-3">
+                            ${cat.items.map(item => `
+                                <li class="flex items-start gap-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 cursor-pointer">
+                                    <span class="text-gray-700 leading-tight">${item}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `).join('');
+
+                contentDiv.innerHTML = `
+                    <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 animation-fade-in">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                                <i class="ph-fill ph-shopping-cart text-indigo-500"></i>
+                                全周生鲜采购清单
+                            </h2>
+                            <p class="text-gray-500 mt-2">基于一周双人食谱汇总，建议每周末统一采购干货，生鲜蔬菜每隔3天采购一次以保证新鲜。</p>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            ${listHtml}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- 交互事件 ---
+        function setTab(tab) {
+            activeTab = tab;
+            render();
+        }
+
+        function setPerson(person) {
+            activePerson = person;
+            render();
+        }
+
+        function setDay(idx) {
+            activeDayIdx = idx;
+            render();
+        }
+
+        // 初始化渲染
+        render();
+    </script>
+<script>
+        // 注册 Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => console.log('PWA 离线支持已启动'))
+                    .catch(err => console.log('PWA 启动失败: ', err));
+            });
+        }
+    </script>
+</body>
+</html>
